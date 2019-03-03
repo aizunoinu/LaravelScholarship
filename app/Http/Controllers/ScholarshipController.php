@@ -127,7 +127,7 @@ class ScholarshipController extends Controller{
     public function csv(Request $request){
         $fileName = '明細' . '.csv';
 
-        $csvFileName = "/Users/junya_sato/Downloads/" . $fileName;
+        $csvFileName = "~/Downloads/" . $fileName;
 
         $res = fopen($csvFileName, 'w');
 
@@ -165,12 +165,13 @@ class ScholarshipController extends Controller{
      */
     public function search(Request $request){
 
-//        var_dump($request->searchID);
         // emailからUserを取得する。
         $user = User::where('email', $request->email)->first();
 
+        // 何も条件を付加していないQueryを作成
         $query = $user->meisais();
 
+        // maxIDとminIDの設定
         if(isset($request->searchID)){
             $maxID = (int)$request->searchID;
             $minID = (int)$request->searchID;
@@ -180,11 +181,25 @@ class ScholarshipController extends Controller{
             $minID = $user->meisais()->min('meisai_id');
         }
 
+        // searchIDによる検索条件を付加したQueryの作成
         $query = $query->moreThan($minID)->lessThan($maxID);
 
+        // yearとmonthが指定されている時
+        if(isset($request->year)){
+            $fromYear = (int)$request->searchID;
+            $toYear = (int)$request->searchID;
+        }
+        else {
+            $fromYear = $user->meisais()->max('meisai_id');
+            $toYear = $user->meisais()->min('meisai_id');
+        }
+
+        // searchIDによる検索条件を付加したQueryの作成
+        $query = $query->moreThan($minID)->lessThan($maxID);
+
+
         $meisais = $query->get();
-//        var_dump($meisais[0]->meisai_id);
-        return view('show', [
+        return view('detail', [
             'email' => $request->email,
             'name' => $request->name,
             'items' => $meisais,

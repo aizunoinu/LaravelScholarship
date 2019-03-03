@@ -23,14 +23,13 @@
     }
 
     #searchField {
+        background-color: #2d995b;
         position: relative;
-        margin-top: 1em;
-        margin-left: 155px;
+        margin-top: 1px;
+        margin-left: 100px;
+        margin-right: 100px;
         margin-bottom: 30px;
-        padding: 0em 2em;
 
-        width: 1100px;
-        height: 150px;
         border: 1px solid #818182;
     }
 
@@ -49,20 +48,16 @@
     }
 
     #searchField table {
-        margin-top: -20px;
-        margin-left: 10px;
-        width: 1000px;
-        height: 120px;
-        /*background-color: red;*/
+        background-color: #1d68a7;
+        margin-top: 20px;
     }
 
     #searchField #submit {
-        margin-top: -20px;
+        margin-top: 10px;
     }
 
     #searchField .rows {
-        margin-top: -20px;
-        height: 10px;
+        /*height: 10px;*/
     }
 </style>
 @section('title', "シミュレーション")
@@ -85,12 +80,6 @@
         }
         document.searchForm.submit();
     }
-    // $("#searchForm").submit(function(){
-    //     if($("input[searchID='searchID']").val() == ''){
-    //         alert('入力してください');
-    //         return false;
-    //     }
-    // })
 </script>
 @section('content')
     <section id="show">
@@ -105,11 +94,11 @@
                     <input type="hidden" name="email" value="{{$email}}">
                     <table>
                         <tr class="rows">
-                            <th width="80" style="text-align: right;">明細ID：</th>
-                            <td width="200"><input size="10" type="text" name="searchID"></td>
-                            <td width="50"></td>
-                            <th width="80" style="text-align: right;">引落年月：</th>
-                            <td width="200">
+                            <th style="text-align: right;">明細ID：</th>
+                            <td><input size="10" type="text" name="searchID"></td>
+                            <td></td>
+                            <th style="text-align: right;">引落年月：</th>
+                            <td>
                                 <select name="year">
                                     <option value="" selected>年</option>
                                     @for($i = (int)date('Y') - 20; $i <= (int)date('Y') + 20; $i++)
@@ -122,9 +111,9 @@
                                         <option value="{{$i}}">{{$i}}月</option>
                                     @endfor
                                 </select>
-                            <td width="50"></td>
-                            <th width="100" style="text-align: right;">残り回数：</th>
-                            <td width="180"><input size="10" type="text" name="zankai">回</td>
+                            <td></td>
+                            <th style="text-align: right;">残り回数：</th>
+                            <td><input size="10" type="text" name="zankai">回</td>
                         </tr>
                     </table>
                     <div id="submit" align="center">
