@@ -44,7 +44,7 @@
 
             #menuField .menu_buttons {
                 border-radius: 10px;
-                width: 200px;
+                width: 220px;
                 height: 50px;
                 font-weight: bold;
                 background-color: #a1cbef;

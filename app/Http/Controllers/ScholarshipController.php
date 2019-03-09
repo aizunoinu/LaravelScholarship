@@ -6,31 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use mysql_xdevapi\Exception;
 use App\User;
-use App\library\Scholarship;
 
 class ScholarshipController extends Controller{
-
-    /**
-     * 新規シミュレーションを行う
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
-     */
-    public function create(Request $request){
-        // emailからUserを取得する。
-        $user = User::where('email', $request->email)->first();
-
-        // 過去のシミュレーション結果を削除
-        $user->meisais()->delete();
-
-        // シミュレーションを実施
-        $scholarship = new Scholarship($request->email, $request->goukei, $request->nenri, $request->finyear, $request->finmonth);
-        $scholarship->calcurateItems();
-        $scholarship->hensaiSimulation();
-
-        return redirect()->action('ScholarshipController@viewShow', ['name' => $request->name, 'email' => $request->email]);
-    }
 
     /**
      * 削除ボタンが押下されたときに明細を削除する。
@@ -85,95 +62,6 @@ class ScholarshipController extends Controller{
         fclose($res);
 
         return Response::download($csvFileName, $fileName);
-    }
-
-    /**
-     * 検索条件に該当するデータを抽出する
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function search(Request $request){
-
-        // emailからUserを取得する。
-        $user = User::where('email', $request->email)->first();
-
-        // Queryの基本形を作成
-        $query = $user->meisais();
-
-        $maxID = $user->meisais()->max('meisai_id');
-        $minID = $user->meisais()->min('meisai_id');
-        $minDate = date('1900-01-01 00:00:00');
-        $maxDate = date('2100-01-31 00:00:00');
-        $minZankai = 0;
-        $maxZankai = 240;
-
-        // 明細IDによる検索条件を追加
-        if(isset($request->searchID)){
-            $minID = (int)$request->searchID;
-            $maxID = (int)$request->searchID;
-        }
-
-        // 明細IDによる検索条件を追加
-        if(isset($request->searchID2)){
-            $maxID = (int)$request->searchID2;
-        }
-
-        // 引落年月による検索条件を追加
-        if (isset($request->year)){
-            $minDate = date('Y-m-d H:i:s', strtotime($request->year . "-" . $request->month . "-" . "1" . '+0 month'));
-            $maxDate = date('Y-m-d H:i:s', strtotime($request->year . "-" . $request->month . "-" . "31" . '+0 month'));
-        }
-
-        // 引落年月による検索条件を追加
-        if (isset($request->year2)){
-            $maxDate = date('Y-m-d H:i:s', strtotime($request->year2 . "-" . $request->month2 . "-" . "31" . '+0 month'));
-        }
-
-        // 残り回数による検索条件を追加
-        if (isset($request->zankai)){
-            $minZankai = $request->zankai;
-            $maxZankai = $request->zankai;
-        }
-
-        // 残り回数による検索条件を追加
-        if (isset($request->zankai2)){
-            $maxZankai = $request->zankai2;
-        }
-
-        $meisais = $query
-            ->moreThanID($minID)
-            ->lessThanID($maxID)
-            ->moreThanHikibi($minDate)
-            ->lessThanHikibi($maxDate)
-            ->moreThanZankai($minZankai)
-            ->LessThanZankai($maxZankai)
-            ->paginate(15);
-
-        $fitem = $meisais->firstItem();
-        $litem = $meisais->lastItem();
-        $mitem = $user->meisais()->count();
-
-        return view('detail', [
-            'email' => $request->email,
-            'name' => $request->name,
-            'items' => $meisais,
-            'msg' => '',
-            'title' => $request->title,
-            'searchID' => $minID,
-            'searchID2' => $maxID,
-            'year' => date('Y', strtotime( $minDate . '+0 month')),
-            'month' => date('n', strtotime( $minDate . '+0 month')),
-            'year2' => date('Y', strtotime( $maxDate . '+0 month')),
-            'month2' => date('n', strtotime( $maxDate . '+0 month')),
-            'zankai' => $minZankai,
-            'zankai2' => $maxZankai,
-            'fitem' => $meisais->firstItem(),
-            'litem' => $meisais->lastItem(),
-            'fitem' => $fitem,
-            'litem' => $litem,
-            'mitem' => $mitem,
-        ]);
     }
 
     /**

@@ -12,9 +12,6 @@
     <div id="content">
         <form action="/login/create" method="post">
             {{ csrf_field() }}
-            <input type="hidden" name="name" value={{$name}}>
-            <input type="hidden" name="email" value="{{$email}}">
-            <input type="hidden" name="title" value="シミュレーション">
             <table align="center">
                 <tr class="rows">
                     <td width="140">借用金額：</td>

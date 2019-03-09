@@ -25,12 +25,13 @@ Route::get('login/set', 'IndexController@viewSet');
 Route::post('login/set', 'IndexController@viewSet');
 Route::get('login/show', 'IndexController@viewShow');
 Route::post('login/show', 'IndexController@viewShow');
-Route::post('login/create', 'ScholarshipController@create');
+Route::post('login/create', 'SettingController@create');
 Route::get('login/ajax_del', 'ScholarshipController@ajaxDelete');
 Route::get('login/detail', 'ScholarshipController@detail');
 Route::get('login/csv', 'ScholarshipController@csv');
-Route::get('login/search', 'ScholarshipController@search');
-Route::post('login/search', 'ScholarshipController@search');
 Route::post('login/viewMenu', 'ScholarshipController@viewMenu');
 Route::post('login/preset', 'ScholarshipController@viewPreSet');
 Route::get('login/ajax_prepay', 'ScholarshipController@ajaxPrePay');
+
+Route::get('login/search', 'ShowController@index');
+Route::post('login/search', 'ShowController@index');

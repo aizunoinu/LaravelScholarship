@@ -17,8 +17,7 @@
         @foreach ($msgs as $msg)
             <p id="msg">{{$msg}}</p>
         @endforeach
-        <form action="/logout" method="post">
-            {{ csrf_field() }}
+        <form action="logout" method="get">
             <div id="menuField" align="center">
                 <input class="menu_buttons" type="submit" value="ログイン画面へ戻る">
             </div>

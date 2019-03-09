@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Http\Libraries;
 use \Datetime;
 
 class Scholarship

@@ -46,7 +46,7 @@
 
     #searchField #csvoutField {
         /*margin: 00px 100px 30px 100px;*/
-        /*margin-top: 30px;*/
+        margin-top: 50px;
         font-size: 20pt;
     }
 
@@ -65,7 +65,7 @@
 
 
     #searchField #searchButtonField {
-        /*margin-top: -50px;*/
+        margin-top: -50px;
         /*margin: 20px 300px 0px 300px;*/
         /*width: 200px;*/
     }
@@ -210,8 +210,6 @@
                         url: '/login/ajax_del',
                         type: 'get',
                         data: {
-                            name: '{{$name}}',
-                            email: '{{$email}}',
                             searchID: $(this).attr('title')
                         },
                     })
@@ -238,8 +236,6 @@
         <h1 class="caption">検索条件</h1>
         <form name="searchForm" action="/login/search" method="post">
             {{ csrf_field() }}
-            <input type="hidden" name="name" value="{{$name}}">
-            <input type="hidden" name="email" value="{{$email}}">
             <input type="hidden" name="title" value="検索結果">
             <table>
                 <tr class="rows">
@@ -291,18 +287,10 @@
                     </td>
                 </tr>
             </table>
-            {{--<div id="csvoutField">--}}
-                {{--<input id="csvout_button" type="button" value="CSVダウンロード"--}}
-                       {{--onclick="location.href='csv?name={{$name}}&email={{$email}}'">--}}
-            {{--</div>--}}
-            {{--<div id="searchButtonField" align="center">--}}
-                {{--<input id="search_button" type="button" value="検索" onclick="submitAfterValidation()">--}}
-            {{--</div>--}}
-            <table id="action_buttons" align="center">
                 <td align="center">
                     <div id="csvoutField">
                         <input id="csvout_button" type="button" value="CSVダウンロード"
-                               onclick="location.href='csv?name={{$name}}&email={{$email}}'">
+                               onclick="location.href='csv'">
                     </div>
                 </td>
                 <td align="center">
@@ -332,7 +320,7 @@
                 </div>
             @endif
                 <div id="links1">
-                    {{ $items->appends(['email' => $email, 'name' => $name])->onEachSide(1)->links() }}
+                    {{ $items->onEachSide(1)->links() }}
                 </div>
             <table align="center" border="1">
                 <thead>
@@ -354,7 +342,7 @@
                 @foreach ($items as $item)
                     <tr id="item_{{$item->meisai_id}}">
                         <td align="center"><a
-                                    href="search?name={{$name}}&email={{$email}}&title=詳細&searchID={{$item->meisai_id}}">{{str_pad($item->meisai_id,4,0,STR_PAD_LEFT)}}</a>
+                                    href="search?title=詳細&searchID={{$item->meisai_id}}">{{str_pad($item->meisai_id,4,0,STR_PAD_LEFT)}}</a>
                         </td>
                         <td>{{$item->zankai}}回</td>
                         <td>{{$item->zangaku}}</td>
@@ -373,7 +361,7 @@
                 </tbody>
             </table>
             <div id="links2">
-                {{ $items->appends(['email' => $email, 'name' => $name])->onEachSide(1)->links() }}
+                {{ $items->onEachSide(1)->links() }}
             </div>
         @endif
     </div>
@@ -386,7 +374,8 @@
                     </form>
                 </td>
                 <td>
-                    <form action="/login" method="get">
+                    <form action="/login" method="post">
+                        {{ csrf_field() }}
                         <input class="menu_buttons" type="submit" value="メニューに戻る">
                     </form>
                 </td>

@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Session;
 use Illuminate\Http\Request;
 use App\User;
 use App\Log;
-use Illuminate\Support\Facades\DB;
 use App\Http\Requests\AuthRequest;
 
 class LoginController extends Controller
@@ -29,11 +27,7 @@ class LoginController extends Controller
         }
 
         // セッションデータが存在する時
-        return view('index', [
-            'name' => $sesdata->name,
-            'email' => $sesdata->email,
-        ]);
-
+        return view('index');
     }
 
     /**
@@ -44,6 +38,13 @@ class LoginController extends Controller
      */
     public function auth(AuthRequest $request)
     {
+        // リクエストのセッション情報からユーザー情報を取得
+        $sesdata = $request->session()->get('user');
+
+        // セッション情報が存在するときは、index画面を表示する。
+        if(isset($sesdata)){
+            return view('index');
+        }
 
         // 該当レコードを検索
         $user = User::where('email', $request->email)->first();
@@ -67,10 +68,7 @@ class LoginController extends Controller
                 // リクエストにセッション情報を保存する。
                 $request->session()->put('user', $user);
 
-                return view('index', [
-                    'email' => $user->email,
-                    'name' => $user->name,
-                ]);
+                return view('index');
             }
 
             // エラーログの登録
@@ -116,6 +114,7 @@ class LoginController extends Controller
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function logout(Request $request){
+        // リクエストのセッション情報からユーザー情報を削除
         $request->session()->forget('user');
 
         return redirect('/login');

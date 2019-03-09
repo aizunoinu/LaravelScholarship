@@ -24,10 +24,7 @@ class IndexController extends Controller
         }
 
         // 設定画面を表示する。
-        return view('setting', [
-            'email' => $sesdata->email,
-            'name' => $sesdata->name,
-        ]);
+        return view('setting');
     }
 
     /**
@@ -50,33 +47,34 @@ class IndexController extends Controller
         $user = User::where('email', $sesdata->email)->first();
 
         // 明細のIDが指定されているとき
-        if (isset($request->searchID)) {
-            $maxID = $request->searchID;
-            $minID = $request->searchID;
-        } else {
-            $maxID = $user->meisais()->max('meisai_id');
-            $minID = $user->meisais()->min('meisai_id');
-        }
+//        if (isset($request->searchID)) {
+//            $maxID = $request->searchID;
+//            $minID = $request->searchID;
+//        } else {
+//            $maxID = $user->meisais()->max('meisai_id');
+//            $minID = $user->meisais()->min('meisai_id');
+//        }
 
-        if(isset($maxID) && isset($minID)){
-            $meisais = $user->meisais()->moreThanID($minID)->lessThanID($maxID)->paginate(15);
-            $fitem = $meisais->firstItem();
-            $litem = $meisais->lastItem();
-            $mitem = $user->meisais()->count();
-        }
-        else{
-            $meisais = $user->meisais()->get();
-            $fitem = '';
-            $litem = '';
-            $mitem = $user->meisais()->count();
-        }
+        // ユーザーの明細を取得
+        $meisais = $user->meisais()->paginate(15);
+
+        //        if(isset($maxID) && isset($minID)){
+//            $meisais = $user->meisais()->moreThanID($minID)->lessThanID($maxID)->paginate(15);
+//            $fitem = $meisais->firstItem();
+//            $litem = $meisais->lastItem();
+//            $mitem = $user->meisais()->count();
+//        }
+//        else{
+//            $meisais = $user->meisais()->get();
+//            $fitem = '';
+//            $litem = '';
+//            $mitem = $user->meisais()->count();
+//        }
         return view('show', [
-            'email' => $sesdata->email,
-            'name' => $sesdata->name,
             'items' => $meisais,
-            'fitem' => $fitem,
-            'litem' => $litem,
-            'mitem' => $mitem,
+            'fitem' => $meisais->firstItem(),
+            'litem' => $meisais->lastItem(),
+            'mitem' => $user->meisais()->count(),
             'msg' => '',
         ]);
     }
