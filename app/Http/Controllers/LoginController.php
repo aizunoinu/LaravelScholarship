@@ -9,7 +9,7 @@ use App\Log;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\AuthRequest;
 
-class AuthAppController extends Controller
+class LoginController extends Controller
 {
 
     /**

@@ -381,16 +381,15 @@
         <table align="center">
             <tr>
                 <td>
-                    <input class="menu_buttons" type="button" value="ログアウト" onclick="location.href='/login'">
+                    <form action="/logout" method="get">
+                        <input class="menu_buttons" type="submit" value="ログアウト">
+                    </form>
                 </td>
-                <form action="/login/viewMenu" method="POST">
-                    {{ csrf_field() }}
-                    <input type="hidden" name="name" value="{{$name}}">
-                    <input type="hidden" name="email" value="{{$email}}">
-                    <td>
+                <td>
+                    <form action="/login" method="get">
                         <input class="menu_buttons" type="submit" value="メニューに戻る">
-                    </td>
-                </form>
+                    </form>
+                </td>
             </tr>
         </table>
     </div>

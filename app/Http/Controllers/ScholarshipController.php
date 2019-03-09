@@ -11,49 +11,6 @@ use App\library\Scholarship;
 class ScholarshipController extends Controller{
 
     /**
-     * ユーザーの明細をすべて表示
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function viewShow(Request $request){
-
-        // emailからUserを取得する。
-        $user = User::where('email', $request->email)->first();
-
-        // 明細のIDが指定されているとき
-        if (isset($request->searchID)) {
-            $maxID = $request->searchID;
-            $minID = $request->searchID;
-        } else {
-            $maxID = $user->meisais()->max('meisai_id');
-            $minID = $user->meisais()->min('meisai_id');
-        }
-
-        if(isset($maxID) && isset($minID)){
-            $meisais = $user->meisais()->moreThanID($minID)->lessThanID($maxID)->paginate(15);
-            $fitem = $meisais->firstItem();
-            $litem = $meisais->lastItem();
-            $mitem = $user->meisais()->count();
-        }
-        else{
-            $meisais = $user->meisais()->get();
-            $fitem = '';
-            $litem = '';
-            $mitem = $user->meisais()->count();
-        }
-        return view('show', [
-            'email' => $request->email,
-            'name' => $request->name,
-            'items' => $meisais,
-            'fitem' => $fitem,
-            'litem' => $litem,
-            'mitem' => $mitem,
-            'msg' => '',
-        ]);
-    }
-
-    /**
      * 新規シミュレーションを行う
      *
      * @param Request $request
@@ -73,19 +30,6 @@ class ScholarshipController extends Controller{
         $scholarship->hensaiSimulation();
 
         return redirect()->action('ScholarshipController@viewShow', ['name' => $request->name, 'email' => $request->email]);
-    }
-
-    /**
-     * setting画面を表示
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function viewSet(Request $request){
-        return view('setting', [
-            'email' => $request->email,
-            'name' => $request->name,
-        ]);
     }
 
     /**

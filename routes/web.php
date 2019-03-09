@@ -16,14 +16,15 @@ Route::get('/', function () {
 });
 
 // http://laravelscholarship.test/login のルーティング
-Route::get('login', 'AuthAppController@index');
-Route::post('login', 'AuthAppController@auth');
-Route::get('logout', 'AuthAppController@logout');
+Route::get('login', 'LoginController@index');
+Route::post('login', 'LoginController@auth');
+Route::get('logout', 'LoginController@logout');
 
 // ログイン後に使用可能となるため、URLにloginを含ませる。
-Route::post('login/set', 'ScholarshipController@viewSet');
-Route::get('login/show', 'ScholarshipController@viewShow');
-Route::post('login/show', 'ScholarshipController@viewShow');
+Route::get('login/set', 'IndexController@viewSet');
+Route::post('login/set', 'IndexController@viewSet');
+Route::get('login/show', 'IndexController@viewShow');
+Route::post('login/show', 'IndexController@viewShow');
 Route::post('login/create', 'ScholarshipController@create');
 Route::get('login/ajax_del', 'ScholarshipController@ajaxDelete');
 Route::get('login/detail', 'ScholarshipController@detail');
