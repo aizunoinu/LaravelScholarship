@@ -5,15 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use mysql_xdevapi\Exception;
-use PHPUnit\Runner\ResultCacheExtension;
-use Illuminate\Database\Eloquent\Collection;
 use App\User;
-use App\Meisai;
 use App\library\Scholarship;
-use Illuminate\Support\Facades\View;
-use Symfony\Component\VarDumper\VarDumper;
-use App\Http\Requests\SettingRequest;
-use App\Http\Requests\SearchRequest;
 
 class ScholarshipController extends Controller{
 

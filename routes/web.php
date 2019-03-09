@@ -18,6 +18,7 @@ Route::get('/', function () {
 // http://laravelscholarship.test/login のルーティング
 Route::get('login', 'AuthAppController@index');
 Route::post('login', 'AuthAppController@auth');
+Route::get('logout', 'AuthAppController@logout');
 
 // ログイン後に使用可能となるため、URLにloginを含ませる。
 Route::post('login/set', 'ScholarshipController@viewSet');

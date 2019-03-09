@@ -2,23 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Session;
 use Illuminate\Http\Request;
 use App\User;
 use App\Log;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\AuthRequest;
 
-class AuthAppController extends Controller{
+class AuthAppController extends Controller
+{
 
     /**
-     * ログイン画面へ遷移
-     *
+     * ビューの表示
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(){
-        return view('login', [
-            'msg' => "",
+    public function index(Request $request)
+    {
+        // リクエストに格納されているセッション情報を取得
+        $sesdata = $request->session()->get('user');
+
+        // セッションデータが存在しない時
+        if (!isset($sesdata)) {
+            return view('login', [
+                'msg' => "",
+            ]);
+        }
+
+        // セッションデータが存在する時
+        return view('index', [
+            'name' => $sesdata->name,
+            'email' => $sesdata->email,
         ]);
+
     }
 
     /**
@@ -27,7 +42,8 @@ class AuthAppController extends Controller{
      * @param AuthRequest $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function auth(AuthRequest $request){
+    public function auth(AuthRequest $request)
+    {
 
         // 該当レコードを検索
         $user = User::where('email', $request->email)->first();
@@ -35,12 +51,12 @@ class AuthAppController extends Controller{
         // 該当レコードが存在
         if (isset($user)) {
             // ロックされているとき、入力画面を表示。
-            if ($user->lock_status == 1){
+            if ($user->lock_status == 1) {
                 return view('login', ['msg' => $user->email . " はロックされています。"]);
             }
 
             // パスワードが一致しているとき、ログを無効化し、正常画面を表示
-            if ($user->password == $request->password){
+            if ($user->password == $request->password) {
 
                 // 正常ログの登録
                 $user->logs()->save((New Log)->fill(['ip_address' => $request->ip(), 'status' => 0]));
@@ -48,10 +64,13 @@ class AuthAppController extends Controller{
                 // ログの無効化
                 $user->logs()->update(['status' => 0, 'updated_at' => date("Y/m/d H:i:s")]);
 
+                // リクエストにセッション情報を保存する。
+                $request->session()->put('user', $user);
+
                 return view('index', [
                     'email' => $user->email,
                     'name' => $user->name,
-                    ]);
+                ]);
             }
 
             // エラーログの登録
@@ -61,7 +80,7 @@ class AuthAppController extends Controller{
             $log_count = $user->logs()->active()->activeDate()->count();
 
             // エラー件数が５件以上のとき、アカウントをロックし、エラー画面を表示
-            if ($log_count >= 5){
+            if ($log_count >= 5) {
 
                 // アカウントのロック
                 $user->update([
@@ -89,5 +108,16 @@ class AuthAppController extends Controller{
 
         // ログイン画面を表示
         return view('login', ['msg' => "※ email 又は password が違います。"]);
+    }
+
+    /**
+     * リクエストからセッションを削除してログイン画面へ戻る。
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function logout(Request $request){
+        $request->session()->forget('user');
+
+        return redirect('/login');
     }
 }

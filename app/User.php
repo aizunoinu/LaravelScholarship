@@ -31,7 +31,11 @@ class User extends Model{
         return $this->hasmany('App\Meisai', 'email', 'email');
     }
 
-//    public function scholarship(){
-//        return $this->hasOne('App\Scholarship', 'email', 'email');
-//    }
+    /**
+     * User１人につき、セッションは１つの関係
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function session(){
+        return $this->hasOne('App\Session', 'id', 'id');
+    }
 }

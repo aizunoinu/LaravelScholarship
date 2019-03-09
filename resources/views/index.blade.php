@@ -1,7 +1,7 @@
 @extends ('layouts.base')
 
 <style>
-    #contentsField{
+    #contentsField {
         /*background-color: #2fa360;*/
     }
 
@@ -11,7 +11,7 @@
         height: 15%;
     }
 
-    #contentsField .action_buttons{
+    #contentsField .action_buttons {
         border-radius: 10px;
         background-color: #2fa360;
         width: 200px;
@@ -20,7 +20,7 @@
         color: white;
     }
 
-    #contentsField .action_buttons:hover{
+    #contentsField .action_buttons:hover {
         background-color: #2fc360;
     }
 </style>
@@ -53,7 +53,9 @@
         </table>
     </div>
     <div id="menuField" align="center">
-        <input class="menu_buttons" type="button" value="ログアウト" onclick="location.href='/login'">
+        <form method="get" action="logout">
+            <input class="menu_buttons" type="submit" value="ログアウト">
+        </form>
     </div>
 @endsection
 
