@@ -9,11 +9,6 @@
         margin-top:10px;
         margin-bottom:.5rem
     }
-    #logout {
-        margin-top:50px;
-        text-align: center;
-    }
-
 </style>
 @section ('title', 'ログインエラー')
 
@@ -24,8 +19,8 @@
         @endforeach
         <form action="/logout" method="post">
             {{ csrf_field() }}
-            <div id="logout">
-                <input type="submit" value="ログイン画面へ戻る">
+            <div id="menuField" align="center">
+                <input class="menu_buttons" type="submit" value="ログイン画面へ戻る">
             </div>
         </form>
     </div>

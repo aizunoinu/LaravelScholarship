@@ -1,59 +1,59 @@
 @extends ('layouts.base')
 
 <style>
-    #logout {
-        margin-top:50px;
-        text-align: center;
+    #contentsField{
+        /*background-color: #2fa360;*/
     }
-    /*table{*/
-        /*font-size: 10pt;*/
-    /*}*/
-    #submit_button1{
-        margin-top: 15pt;
+
+    #contentsField table {
+        table-layout: auto;
+        font-size: 10pt;
+        height: 15%;
     }
-    #submit_button2{
-        margin-top: 15pt;
+
+    #contentsField .action_buttons{
+        border-radius: 10px;
+        background-color: #2fa360;
+        width: 200px;
+        height: 40px;
+        font-weight: bold;
+        color: white;
     }
-    #submit_button3{
-        margin-top: 15pt;
-        text-align: center;
-    }
-    #msg{
-        font-size: 20pt;
+
+    #contentsField .action_buttons:hover{
+        background-color: #2fc360;
     }
 </style>
 @section ('title', 'MENU')
 
 @section ('content')
-    <div id="content">
-        <table align="center" border="1pt">
+    <div id="contentsField">
+        <table border="1" align="center">
             <tr>
-                <th align="left" width="200">新規シミュレーション</th>
-                <td align="center" valign="middle" width="200">
-                    <form action="/login/setting" method="POST">
-                        {{ csrf_field() }}
-                        <input type="hidden" name="name" value="{{$name}}">
-                        <input type="hidden" name="email" value="{{$email}}">
-                        <input id="submit_button1" type="submit" value="新規シミュレーション">
-                    </form>
-                </td>
+                <th style="text-align: center;" width="200">新規シミュレーション</th>
+                <form action="/login/set" method="POST">
+                    {{ csrf_field() }}
+                    <input type="hidden" name="name" value="{{$name}}">
+                    <input type="hidden" name="email" value="{{$email}}">
+                    <td align="center" width="230">
+                        <input class="action_buttons" type="submit" value="新規シミュレーション">
+                    </td>
+                </form>
             </tr>
             <tr>
-                <th align="left">履歴から復元</th>
-                <td align="center" valign="middle" width="200">
-                    <form action="/login/show" method="POST">
-                        {{ csrf_field() }}
-                        <input type="hidden" name="name" value="{{$name}}">
-                        <input type="hidden" name="email" value="{{$email}}">
-                        <input type="hidden" name="title" value="シミュレーション">
-                        <input id="submit_button2" type="submit" value="履歴から復元">
-                    </form>
-                </td>
+                <th style="text-align: center;">履歴から表示</th>
+                <form action="/login/show" method="get">
+                    <input type="hidden" name="name" value="{{$name}}">
+                    <input type="hidden" name="email" value="{{$email}}">
+                    <td align="center" width="230">
+                        <input class="action_buttons" type="submit" value="履歴から表示">
+                    </td>
+                </form>
             </tr>
         </table>
     </div>
-    <div id="submit_button3">
-        <input type="button" value="ログアウト" onclick="location.href='/login'">
+    <div id="menuField" align="center">
+        <input class="menu_buttons" type="button" value="ログアウト" onclick="location.href='/login'">
     </div>
 @endsection
 

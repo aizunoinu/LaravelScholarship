@@ -12,6 +12,8 @@
                 text-align: center;
                 margin:20px 0px -30px 0px;
                 letter-spacing: -4pt;
+                font-weight: bold;
+                color: #b9bbbe;
             }
             ul {
                 font-size:12pt;
@@ -35,7 +37,26 @@
                 border-bottom: solid 1px #ccc;
                 color: #ccc;
             }
+
+            #menuField{
+                margin-top: 30px;
+            }
+
+            #menuField .menu_buttons {
+                border-radius: 10px;
+                width: 200px;
+                height: 50px;
+                font-weight: bold;
+                background-color: #a1cbef;
+                color: white;
+            }
+
+            #menuField .menu_buttons:hover {
+                background-color: #a1dbff;
+            }
+
         </style>
+        @yield('script')
     </head>
 
     <body>

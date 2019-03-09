@@ -1,11 +1,9 @@
 <?php
 
 namespace App;
-
-use Illuminate\Database\Eloquent\Model;
 use \Datetime;
 
-class Scholarship extends Model
+class Scholarship
 {
     /**
      * Scholarship constructor.
@@ -132,7 +130,7 @@ class Scholarship extends Model
             if($hensaiSogaku <= $this->hensaigaku) {
                 $this->meisais()->save((new Meisai)->fill([
                     'meisai_id' => str_pad($hensaiCount + 1,4,0,STR_PAD_LEFT),
-                    'zankai' => $hensaiKaisu - $hensaiCount . '回',
+                    'zankai' => $hensaiKaisu - $hensaiCount,
                     'zangaku' => number_format($hensaiSogaku) . '円',
                     'hikibi' => $whensaiDate,
                     'hensaigaku' => number_format($hensaiSogaku + $amariGoukeigaku) . '円',
@@ -150,7 +148,7 @@ class Scholarship extends Model
             else {
                 $this->meisais()->save((new Meisai)->fill([
                     'meisai_id' => $hensaiCount + 1,
-                    'zankai' => $hensaiKaisu - $hensaiCount . '回',
+                    'zankai' => $hensaiKaisu - $hensaiCount,
                     'zangaku' => number_format($hensaiSogaku) . '円',
                     'hikibi' => $whensaiDate,
                     'hensaigaku' => number_format($this->hensaigaku) . '円',
@@ -178,8 +176,8 @@ class Scholarship extends Model
    public function getHensaiDate($hensaiDate){
        $datetime = new DateTime($hensaiDate);
 
-       if((int)$datetime->format('w') == 0) return date('Y年n月j日', strtotime($hensaiDate . '+1 day'));
-       elseif((int)$datetime->format('w') == 6) return date('Y年n月j日', strtotime($hensaiDate . '+2 day'));
-       else return date('Y年n月j日', strtotime($hensaiDate . '+0 day'));
+       if((int)$datetime->format('w') == 0) return date('Y-n-j H:i:s', strtotime($hensaiDate . '+1 day'));
+       elseif((int)$datetime->format('w') == 6) return date('Y-n-j H:i:s', strtotime($hensaiDate . '+2 day'));
+       else return date('Y-n-j H:i:s', strtotime($hensaiDate . '+0 day'));
     }
 }

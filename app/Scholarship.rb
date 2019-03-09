@@ -386,7 +386,7 @@ class Scholarship
         sheet.merge_cells 0, 0, 0, 8
         cell = sheet.add_cell(0, 0, "奨学金返済計画")
         cell.change_horizontal_alignment
-        #cell.change_border(:bottom, 'thin')
+        cell.change_border(:bottom, 'thin')
 
         #表題の編集
         for i in 0..hyodaiArray.size - 1

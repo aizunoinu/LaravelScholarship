@@ -29,13 +29,6 @@ class AuthAppController extends Controller{
      */
     public function auth(AuthRequest $request){
 
-        if(isset($request->name) && isset($request->email)){
-            return view('index', [
-                'email' => $request->email,
-                'name' => $request->name,
-            ]);
-        }
-
         // 該当レコードを検索
         $user = User::where('email', $request->email)->first();
 

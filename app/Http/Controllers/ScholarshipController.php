@@ -9,7 +9,7 @@ use PHPUnit\Runner\ResultCacheExtension;
 use Illuminate\Database\Eloquent\Collection;
 use App\User;
 use App\Meisai;
-use App\Scholarship;
+use App\library\Scholarship;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\VarDumper\VarDumper;
 use App\Http\Requests\SettingRequest;
@@ -23,7 +23,7 @@ class ScholarshipController extends Controller{
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(Request $request){
+    public function viewShow(Request $request){
 
         // emailからUserを取得する。
         $user = User::where('email', $request->email)->first();
@@ -38,17 +38,24 @@ class ScholarshipController extends Controller{
         }
 
         if(isset($maxID) && isset($minID)){
-            $meisais = $user->meisais()->moreThan($minID)->lessThan($maxID)->paginate(15);
+            $meisais = $user->meisais()->moreThanID($minID)->lessThanID($maxID)->paginate(15);
+            $fitem = $meisais->firstItem();
+            $litem = $meisais->lastItem();
+            $mitem = $user->meisais()->count();
         }
         else{
             $meisais = $user->meisais()->get();
+            $fitem = '';
+            $litem = '';
+            $mitem = $user->meisais()->count();
         }
-
-//        var_dump($meisais);
         return view('show', [
             'email' => $request->email,
             'name' => $request->name,
             'items' => $meisais,
+            'fitem' => $fitem,
+            'litem' => $litem,
+            'mitem' => $mitem,
             'msg' => '',
         ]);
     }
@@ -60,7 +67,7 @@ class ScholarshipController extends Controller{
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Exception
      */
-    public function create(SettingRequest $request){
+    public function create(Request $request){
         // emailからUserを取得する。
         $user = User::where('email', $request->email)->first();
 
@@ -72,7 +79,7 @@ class ScholarshipController extends Controller{
         $scholarship->calcurateItems();
         $scholarship->hensaiSimulation();
 
-        return redirect()->action('ScholarshipController@index', ['name' => $request->name, 'email' => $request->email]);
+        return redirect()->action('ScholarshipController@viewShow', ['name' => $request->name, 'email' => $request->email]);
     }
 
     /**
@@ -81,24 +88,10 @@ class ScholarshipController extends Controller{
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function setting(Request $request){
+    public function viewSet(Request $request){
         return view('setting', [
             'email' => $request->email,
             'name' => $request->name,
-        ]);
-    }
-
-    public function detail(Request $request){
-        // emailからUserを取得する。
-        $user = User::where('email', $request->email)->first();
-
-        // Userの指定された明細IDのレコードを取得
-        $meisais = $user->meisais()->where('meisai_id', $request->searchID)->get();
-
-        return view('detail', [
-            'email' => $request->email,
-            'name' => $request->name,
-            'items' => $meisais,
         ]);
     }
 
@@ -108,14 +101,12 @@ class ScholarshipController extends Controller{
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete(Request $request){
+    public function ajaxDelete(Request $request){
         // emailからUserを取得する。
         $user = User::where('email', $request->email)->first();
 
         // Userの指定された明細IDのレコードを削除
         $user->meisais()->where('meisai_id', $request->searchID)->delete();
-
-        return redirect()->action('ScholarshipController@index', ['name' => $request->name, 'email' => $request->email]);
     }
 
     /**
@@ -127,7 +118,7 @@ class ScholarshipController extends Controller{
     public function csv(Request $request){
         $fileName = '明細' . '.csv';
 
-        $csvFileName = "~/Downloads/" . $fileName;
+        $csvFileName = "/Users/junya_sato/Downloads/" . $fileName;
 
         $res = fopen($csvFileName, 'w');
 
@@ -148,10 +139,10 @@ class ScholarshipController extends Controller{
             $minID = $user->meisais()->min('meisai_id');
         }
 
-        $meisais = $user->meisais()->moreThan($minID)->lessThan($maxID)->get();
+        $meisais = $user->meisais()->moreThanID($minID)->lessThanID($maxID)->get();
 
         foreach ($meisais as $meisai) {
-            fputcsv($res, [$meisai->meisai_id, $meisai->zankai, $meisai->zangaku, $meisai->hikibi, $meisai->hensaigaku, $meisai->hensaimoto, $meisai->suerisoku, $meisai->risoku, $meisai->hasu, $meisai->atozangaku,]);
+            fputcsv($res, [str_pad($meisai->meisai_id,4,0,STR_PAD_LEFT), $meisai->zankai . '回' , $meisai->zangaku, date('Y年n月j日', strtotime($meisai->hikibi . '+0 day')), $meisai->hensaigaku, $meisai->hensaimoto, $meisai->suerisoku, $meisai->risoku, $meisai->hasu, $meisai->atozangaku,]);
         }
 
         fclose($res);
@@ -160,6 +151,8 @@ class ScholarshipController extends Controller{
     }
 
     /**
+     * 検索条件に該当するデータを抽出する
+     *
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -168,43 +161,126 @@ class ScholarshipController extends Controller{
         // emailからUserを取得する。
         $user = User::where('email', $request->email)->first();
 
-        // 何も条件を付加していないQueryを作成
+        // Queryの基本形を作成
         $query = $user->meisais();
 
-        // maxIDとminIDの設定
+        $maxID = $user->meisais()->max('meisai_id');
+        $minID = $user->meisais()->min('meisai_id');
+        $minDate = date('1900-01-01 00:00:00');
+        $maxDate = date('2100-01-31 00:00:00');
+        $minZankai = 0;
+        $maxZankai = 240;
+
+        // 明細IDによる検索条件を追加
         if(isset($request->searchID)){
-            $maxID = (int)$request->searchID;
             $minID = (int)$request->searchID;
-        }
-        else {
-            $maxID = $user->meisais()->max('meisai_id');
-            $minID = $user->meisais()->min('meisai_id');
+            $maxID = (int)$request->searchID;
         }
 
-        // searchIDによる検索条件を付加したQueryの作成
-        $query = $query->moreThan($minID)->lessThan($maxID);
-
-        // yearとmonthが指定されている時
-        if(isset($request->year)){
-            $fromYear = (int)$request->searchID;
-            $toYear = (int)$request->searchID;
-        }
-        else {
-            $fromYear = $user->meisais()->max('meisai_id');
-            $toYear = $user->meisais()->min('meisai_id');
+        // 明細IDによる検索条件を追加
+        if(isset($request->searchID2)){
+            $maxID = (int)$request->searchID2;
         }
 
-        // searchIDによる検索条件を付加したQueryの作成
-        $query = $query->moreThan($minID)->lessThan($maxID);
+        // 引落年月による検索条件を追加
+        if (isset($request->year)){
+            $minDate = date('Y-m-d H:i:s', strtotime($request->year . "-" . $request->month . "-" . "1" . '+0 month'));
+            $maxDate = date('Y-m-d H:i:s', strtotime($request->year . "-" . $request->month . "-" . "31" . '+0 month'));
+        }
 
+        // 引落年月による検索条件を追加
+        if (isset($request->year2)){
+            $maxDate = date('Y-m-d H:i:s', strtotime($request->year2 . "-" . $request->month2 . "-" . "31" . '+0 month'));
+        }
 
-        $meisais = $query->get();
+        // 残り回数による検索条件を追加
+        if (isset($request->zankai)){
+            $minZankai = $request->zankai;
+            $maxZankai = $request->zankai;
+        }
+
+        // 残り回数による検索条件を追加
+        if (isset($request->zankai2)){
+            $maxZankai = $request->zankai2;
+        }
+
+        $meisais = $query
+            ->moreThanID($minID)
+            ->lessThanID($maxID)
+            ->moreThanHikibi($minDate)
+            ->lessThanHikibi($maxDate)
+            ->moreThanZankai($minZankai)
+            ->LessThanZankai($maxZankai)
+            ->paginate(15);
+
+        $fitem = $meisais->firstItem();
+        $litem = $meisais->lastItem();
+        $mitem = $user->meisais()->count();
+
         return view('detail', [
             'email' => $request->email,
             'name' => $request->name,
             'items' => $meisais,
             'msg' => '',
+            'title' => $request->title,
+            'searchID' => $minID,
+            'searchID2' => $maxID,
+            'year' => date('Y', strtotime( $minDate . '+0 month')),
+            'month' => date('n', strtotime( $minDate . '+0 month')),
+            'year2' => date('Y', strtotime( $maxDate . '+0 month')),
+            'month2' => date('n', strtotime( $maxDate . '+0 month')),
+            'zankai' => $minZankai,
+            'zankai2' => $maxZankai,
+            'fitem' => $meisais->firstItem(),
+            'litem' => $meisais->lastItem(),
+            'fitem' => $fitem,
+            'litem' => $litem,
+            'mitem' => $mitem,
         ]);
+    }
+
+    /**
+     * メニューに戻るボタンの処理
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function viewMenu(Request $request){
+        return view('index', [
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+    }
+
+    public function viewPreSet(Request $request){
+
+        $user = User::where('email', $request->email)->first();
+
+        $meisais = $user->meisais()->orderBy('meisai_id', 'asc')->get();
+
+        foreach ($meisais as $meisai){
+            $years[date('Y', strtotime($meisai->hikibi . '+0 day'))] = date('Y', strtotime($meisai->hikibi . '+0 day'));
+        }
+
+        return view('prepayset', [
+            'name' => $request->name,
+            'email' => $request->email,
+            'years' => $years,
+            'msg' => '奨学金の残額は ' . $meisais[0]->zangaku . ' です',
+        ]);
+    }
+
+    public function ajaxPrePay(Request $request){
+
+        $user = User::where('email', $request->email)->first();
+
+//        \Log::info($user->name);
+//        \Log::info($user->email);
+
+        echo '<table align="center" border="1">';
+        echo '<tr><th>名前</th><th>メールアドレス</th></tr>';
+        echo '<tr><td>' . $user->name . '</td><td>' . $user->email . '</td></tr>';
+        echo '</table>';
     }
 }
  
