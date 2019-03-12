@@ -31,7 +31,7 @@
         <table border="1" align="center">
             <tr>
                 <th style="text-align: center;" width="200">新規シミュレーション</th>
-                <form action="/login/set" method="POST">
+                <form action="/login/set" method="post">
                     {{ csrf_field() }}
                     <td align="center" width="230">
                         <input class="action_buttons" type="submit" value="新規シミュレーション">

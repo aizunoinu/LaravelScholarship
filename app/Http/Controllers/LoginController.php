@@ -16,17 +16,14 @@ class LoginController extends Controller
      */
     public function index(Request $request)
     {
-        // リクエストに格納されているセッション情報を取得
-        $sesdata = $request->session()->get('user');
-
-        // セッションデータが存在しない時
-        if (!isset($sesdata)) {
+        // セッションがない時、Login画面を表示
+        if (!$request->session()->has('user')) {
             return view('login', [
                 'msg' => "",
             ]);
         }
 
-        // セッションデータが存在する時
+        // Menu画面を表示
         return view('index');
     }
 
@@ -38,11 +35,8 @@ class LoginController extends Controller
      */
     public function auth(AuthRequest $request)
     {
-        // リクエストのセッション情報からユーザー情報を取得
-        $sesdata = $request->session()->get('user');
-
         // セッション情報が存在するときは、index画面を表示する。
-        if(isset($sesdata)){
+        if($request->session()->has('user')){
             return view('index');
         }
 
@@ -65,9 +59,10 @@ class LoginController extends Controller
                 // ログの無効化
                 $user->logs()->update(['status' => 0, 'updated_at' => date("Y/m/d H:i:s")]);
 
-                // リクエストにセッション情報を保存する。
+                // リクエストにセッションを保存する。
                 $request->session()->put('user', $user);
 
+                // index画面を表示する
                 return view('index');
             }
 
@@ -96,6 +91,7 @@ class LoginController extends Controller
                 ]);
             }
 
+            // Login画面を表示
             return view('login', ['msg' => "※ email 又は password が違います。"]);
         }
 
@@ -104,7 +100,7 @@ class LoginController extends Controller
         $user->email = $request->email;
         $user->logs()->save((new Log)->fill(['ip_address' => $request->ip(), 'status' => 1]));
 
-        // ログイン画面を表示
+        // Login画面を表示
         return view('login', ['msg' => "※ email 又は password が違います。"]);
     }
 
@@ -114,9 +110,10 @@ class LoginController extends Controller
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function logout(Request $request){
-        // リクエストのセッション情報からユーザー情報を削除
+        // リクエストのセッション情報を破棄
         $request->session()->forget('user');
 
+        // Login画面へリダイレクト
         return redirect('/login');
     }
 }

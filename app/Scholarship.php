@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Libraries;
-use \Datetime;
+namespace App;
 
-class Scholarship
+use \Datetime;
+use Illuminate\Database\Eloquent\Model;
+
+class Scholarship extends Model
 {
     /**
      * Scholarship constructor.
