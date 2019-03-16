@@ -2,46 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\User;
 use App\Log;
-use App\Http\Requests\AuthRequest;
+use Illuminate\Support\Facades\Input;
 
-class LoginController extends Controller
+class Login extends Controller
 {
-
     /**
      * ビューの表示
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index()
     {
-        // セッションがない時、Login画面を表示
-        if (!$request->session()->has('user')) {
+
+        // セッションが存在すれば、indexビューを表示
+        if(session()->has('user')){
+            return view('index');
+        }
+
+        // ビューのリクエストを取得する。
+        $data = Input::all();
+
+        // リクエスト情報なし
+        if (empty($data)){
             return view('login', [
                 'msg' => "",
             ]);
         }
 
-        // Menu画面を表示
-        return view('index');
-    }
-
-    /**
-     * メールアドレスとパスワードを使用した認証
-     *
-     * @param AuthRequest $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function auth(AuthRequest $request)
-    {
-        // セッション情報が存在するときは、index画面を表示する。
-        if($request->session()->has('user')){
-            return view('index');
-        }
-
         // 該当レコードを検索
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $data['email'])->first();
 
         // 該当レコードが存在
         if (isset($user)) {
@@ -51,23 +41,23 @@ class LoginController extends Controller
             }
 
             // パスワードが一致しているとき、ログを無効化し、正常画面を表示
-            if ($user->password == $request->password) {
+            if ($user->password == $data['password']) {
 
                 // 正常ログの登録
-                $user->logs()->save((New Log)->fill(['ip_address' => $request->ip(), 'status' => 0]));
+                $user->logs()->save((New Log)->fill(['ip_address' => $_SERVER["REMOTE_ADDR"], 'status' => 0]));
 
                 // ログの無効化
                 $user->logs()->update(['status' => 0, 'updated_at' => date("Y/m/d H:i:s")]);
 
                 // リクエストにセッションを保存する。
-                $request->session()->put('user', $user);
+                session()->put('user', $user);
 
                 // index画面を表示する
                 return view('index');
             }
 
             // エラーログの登録
-            $user->logs()->save((New Log)->fill(['ip_address' => $request->ip(), 'status' => 1]));
+            $user->logs()->save((New Log)->fill(['ip_address' => $_SERVER["REMOTE_ADDR"], 'status' => 1]));
 
             // 処理日に出力されているエラーログの個数を取得
             $log_count = $user->logs()->active()->activeDate()->count();
@@ -97,21 +87,20 @@ class LoginController extends Controller
 
         // エラーログの登録
         $user = new User;
-        $user->email = $request->email;
-        $user->logs()->save((new Log)->fill(['ip_address' => $request->ip(), 'status' => 1]));
+        $user->email = $data['email'];
+        $user->logs()->save((new Log)->fill(['ip_address' => $_SERVER["REMOTE_ADDR"], 'status' => 1]));
 
         // Login画面を表示
         return view('login', ['msg' => "※ email 又は password が違います。"]);
     }
 
     /**
-     * リクエストからセッションを削除してログイン画面へ戻る。
-     * @param Request $request
+     * セッションを削除して、/loginへリダイレクト
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function logout(Request $request){
+    public function logout(){
         // リクエストのセッション情報を破棄
-        $request->session()->forget('user');
+        session()->forget('user');
 
         // Login画面へリダイレクト
         return redirect('/login');

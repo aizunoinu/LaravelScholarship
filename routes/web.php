@@ -15,23 +15,30 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// http://laravelscholarship.test/login のルーティング
-Route::get('login', 'LoginController@index');
-Route::post('login', 'LoginController@auth');
-Route::get('logout', 'LoginController@logout');
+// http://laravelscholarship.test/login
 
-// ログイン後に使用可能となるため、URLにloginを含ませる。
-Route::get('login/set', 'IndexController@viewSet');
-Route::post('login/set', 'IndexController@viewSet');
-Route::get('login/show', 'IndexController@viewShow');
-Route::post('login/show', 'IndexController@viewShow');
-Route::post('login/create', 'SettingController@create');
-Route::get('login/ajax_del', 'ScholarshipController@ajaxDelete');
-Route::get('login/detail', 'ScholarshipController@detail');
-Route::get('login/csv', 'ScholarshipController@csv');
-Route::post('login/viewMenu', 'ScholarshipController@viewMenu');
-Route::post('login/preset', 'ScholarshipController@viewPreSet');
-Route::get('login/ajax_prepay', 'ScholarshipController@ajaxPrePay');
+// Loginビューのルーティング
+Route::get('login', 'Login@index');
+Route::post('login', 'Login@index');
+Route::get('logout', 'Login@logout');
 
-Route::get('login/search', 'ShowController@index');
-Route::post('login/search', 'ShowController@index');
+// Indexビューのルーティング
+Route::get('login/set', 'Index@viewSet');
+Route::post('login/set', 'Index@viewSet');
+Route::get('login/show', 'Index@viewShow');
+Route::post('login/show', 'Index@viewShow');
+
+// Settingビューのルーティング
+Route::post('login/create', 'Setting@create');
+
+// Showビューのルーティング
+Route::get('login/ajax_del', 'Show@ajaxDelete');
+Route::get('login/csv', 'Show@csv');
+Route::post('login/preset', 'Show@viewPreSet');
+Route::get('login/search', 'Show@index');
+Route::post('login/search', 'Show@index');
+Route::post('login/redirectMenu', 'Show@redirectMenu');
+
+// Presetビューのルーティング
+Route::get('login/ajax_prepay', 'Scholarship@ajaxPrePay');
+

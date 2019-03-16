@@ -17,6 +17,8 @@ class Scholarship extends Model
      * @param $finmonth
      */
     public function __construct($email, $goukei, $nenri, $finyear, $finmonth){
+
+        parent::__construct();
         $this->email = $email;
         $this->hensaiSogaku = (int)$goukei;
         $this->nenri = (float)$nenri;

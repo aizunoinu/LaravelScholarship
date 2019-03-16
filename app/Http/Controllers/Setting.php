@@ -2,37 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\User;
-use App\Http\Libraries\Scholarship;
+use App\Scholarship;
+use Illuminate\Support\Facades\Input;
 
-class SettingController extends Controller
+class Setting extends Controller
 {
     /**
      * 新規シミュレーションを行う
-     *
-     * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \Exception
      */
-    public function create(Request $request){
-
-        // リクエストからセッション情報を取得する。
-        $sesdata = $request->session()->get('user');
+    public function create(){
 
         // セッションが存在しないときは、ログイン画面を表示する。
-        if(!isset($sesdata)){
+        if(!session()->has('user')){
             return redirect('login');
         }
 
+        // セッション情報を取得する。
+        $session_data = session()->get('user');
+
+        // リクエスト情報の取得
+        $data = Input::all();
+
         // emailからUserを取得する。
-        $user = User::where('email', $sesdata->email)->first();
+        $user = User::where('email', $session_data['email'])->first();
 
         // 過去のシミュレーション結果を削除
         $user->meisais()->delete();
 
         // シミュレーションを実施
-        $scholarship = new Scholarship($sesdata->email, $request->goukei, $request->nenri, $request->finyear, $request->finmonth);
+        $scholarship = new Scholarship($session_data['email'], $data['goukei'], $data['nenri'], $data['finyear'], $data['finmonth']);
         $scholarship->calcurateItems();
         $scholarship->hensaiSimulation();
 

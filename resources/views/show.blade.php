@@ -311,16 +311,16 @@
         {{--</form>--}}
     {{--</div>--}}
     <div id="showField">
-        @if (count($items) == 0)
+        @if (count($meisais) == 0)
             <p align="center">履歴が存在しません</p>
         @else
-            @if ($fitem != '')
+            @if ($first_item_num != '')
                 <div id="counter" align="right">
-                    {{$fitem}}件-{{$litem}}件/{{$mitem}}件
+                    {{$first_item_num}}件-{{$last_item_num}}件/{{$total_item_num}}件
                 </div>
             @endif
                 <div id="links1">
-                    {{ $items->onEachSide(1)->links() }}
+                    {{ $meisais->onEachSide(1)->links() }}
                 </div>
             <table align="center" border="1">
                 <thead>
@@ -339,29 +339,29 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach ($items as $item)
-                    <tr id="item_{{$item->meisai_id}}">
+                @foreach ($meisais as $meisai)
+                    <tr id="item_{{$meisai->meisai_id}}">
                         <td align="center"><a
-                                    href="search?title=詳細&searchID={{$item->meisai_id}}">{{str_pad($item->meisai_id,4,0,STR_PAD_LEFT)}}</a>
+                                    href="search?title=詳細&searchID={{$meisai->meisai_id}}">{{str_pad($meisai->meisai_id,4,0,STR_PAD_LEFT)}}</a>
                         </td>
-                        <td>{{$item->zankai}}回</td>
-                        <td>{{$item->zangaku}}</td>
-                        <td>{{date('Y年n月j日', strtotime($item->hikibi . '+0 day'))}}</td>
-                        <td>{{$item->hensaigaku}}</td>
-                        <td>{{$item->hensaimoto}}</td>
-                        <td>{{$item->suerisoku}}</td>
-                        <td>{{$item->risoku}}</td>
-                        <td>{{$item->hasu}}</td>
-                        <td>{{$item->atozangaku}}</td>
+                        <td>{{$meisai->zankai}}回</td>
+                        <td>{{$meisai->zangaku}}</td>
+                        <td>{{date('Y年n月j日', strtotime($meisai->hikibi . '+0 day'))}}</td>
+                        <td>{{$meisai->hensaigaku}}</td>
+                        <td>{{$meisai->hensaimoto}}</td>
+                        <td>{{$meisai->suerisoku}}</td>
+                        <td>{{$meisai->risoku}}</td>
+                        <td>{{$meisai->hasu}}</td>
+                        <td>{{$meisai->atozangaku}}</td>
                         <td align="center">
-                            <a href="javascript:void(0);" class="delete_button" title="{{$item->meisai_id}}">削除</a>
+                            <a href="javascript:void(0);" class="delete_button" title="{{$meisai->meisai_id}}">削除</a>
                         </td>
                     </tr>
                 @endforeach
                 </tbody>
             </table>
             <div id="links2">
-                {{ $items->onEachSide(1)->links() }}
+                {{ $meisais->onEachSide(1)->links() }}
             </div>
         @endif
     </div>
@@ -374,7 +374,7 @@
                     </form>
                 </td>
                 <td>
-                    <form action="/login" method="post">
+                    <form action="/login/redirectMenu" method="post">
                         {{ csrf_field() }}
                         <input class="menu_buttons" type="submit" value="メニューに戻る">
                     </form>

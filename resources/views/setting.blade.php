@@ -32,7 +32,7 @@
             </table>
             <div id="menuField">
                 <table align="center">
-                    <td><input class="menu_buttons" type="submit" name="act2" value="前に戻る"></td>
+                    <td><input class="menu_buttons" type="button" onclick="history.back()" value="前に戻る"></td>
                     <td><input class="menu_buttons" type="submit" name="act1" value="シミュレーション開始"></td>
                 </table>
 
