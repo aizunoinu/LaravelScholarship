@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Scholarship;
-use Illuminate\Support\Facades\Input;
+use Illuminate\http\Request;
 
 class Setting extends Controller
 {
     /**
      * 新規シミュレーションを行う
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \Exception
      */
-    public function create(){
+    public function __invoke(Request $request){
 
         // セッションが存在しないときは、ログイン画面を表示する。
         if(!session()->has('user')){
@@ -24,7 +25,7 @@ class Setting extends Controller
         $session_data = session()->get('user');
 
         // リクエスト情報の取得
-        $data = Input::all();
+        $data = $request->all();
 
         // emailからUserを取得する。
         $user = User::where('email', $session_data['email'])->first();

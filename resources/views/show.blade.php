@@ -46,7 +46,7 @@
 
     #searchField #csvoutField {
         /*margin: 00px 100px 30px 100px;*/
-        margin-top: 50px;
+        margin-top: 30px;
         font-size: 20pt;
     }
 
@@ -65,12 +65,31 @@
 
 
     #searchField #searchButtonField {
-        margin-top: -50px;
+        margin-top: 30px;
         /*margin: 20px 300px 0px 300px;*/
         /*width: 200px;*/
     }
 
     #searchButtonField #search_button {
+        border-radius: 10px;
+        background-color: #e9605c;
+        font-weight: bold;
+        width: 300px;
+        height: 50px;
+        color: white;
+    }
+
+    #searchButtonField #search_button:hover {
+        background-color: #ff605c;
+    }
+
+    #searchField #clearButtonField {
+        margin-top: 30px;
+        /*margin: 20px 300px 0px 300px;*/
+        /*width: 200px;*/
+    }
+
+    #clearButtonField #clear_button {
         border-radius: 10px;
         background-color: #b9bbbe;
         font-weight: bold;
@@ -79,7 +98,7 @@
         color: white;
     }
 
-    #searchButtonField #search_button:hover {
+    #clearButtonField #clear_button:hover {
         background-color: #b9bbde;
     }
 
@@ -240,62 +259,47 @@
             <table>
                 <tr class="rows">
                     <th width="80" style="text-align: right;">明細ID：</th>
-                    <td width="70"><input id="searchID" type="number" min="1" max="240" style="width: 70px"
-                                          name="searchID">
+                    <td width="70">
+                        <input id="searchID" type="number" min="1" max="240" style="width: 70px" name="searchID" value="{{isset($searchID) ? $searchID : ''}}">
                     </td>
                     <td width="5">〜</td>
-                    <td width="70"><input id="searchID2" type="number" min="1" max="240" style="width: 70px"
-                                          name="searchID2">
+                    <td width="70">
+                        <input id="searchID2" type="number" min="1" max="240" style="width: 70px" name="searchID2" value="{{isset($searchID2) ? $searchID2 : ''}}">
                     </td>
                     <th style="text-align: right;">引落年月：</th>
                     <td width="150">
-                        <select id="year" name="year">
-                            <option value="" selected>年</option>
-                            @for($i = (int)date('Y') - 20; $i <= (int)date('Y') + 20; $i++)
-                                <option value="{{$i}}">{{$i}}月</option>
-                            @endfor
-                        </select>
-                        <select id="month" name="month">
-                            <option value="" selected>月</option>
-                            @for($i = 1; $i <= 12; $i++)
-                                <option value="{{$i}}">{{$i}}月</option>
-                            @endfor
-                        </select>
+                        <input id="year" name="year" type="number" min="1" style="width: 60px" value="{{isset($year) ? $year : ''}}">年
+                        <input id="month" name="month" type="number" min="1" style="width: 50px" value="{{isset($month) ? $month : ''}}">月
                     </td>
                     <td width="5">〜</td>
                     <td width="160">
-                        <select id="year2" name="year2">
-                            <option value="" selected>年</option>
-                            @for($i = (int)date('Y') - 20; $i <= (int)date('Y') + 20; $i++)
-                                <option value="{{$i}}">{{$i}}月</option>
-                            @endfor
-                        </select>
-                        <select id="month2" name="month2">
-                            <option value="" selected>月</option>
-                            @for($i = 1; $i <= 12; $i++)
-                                <option value="{{$i}}">{{$i}}月</option>
-                            @endfor
-                        </select>
+                        <input id="year2" name="year2" type="number" min="1" style="width: 60px" value="{{isset($year2) ? $year2 : ''}}">年
+                        <input id="month2" name="month2" type="number" min="1" style="width: 50px" value="{{isset($month2) ? $month2 : ''}}">月
                     </td>
                     <th style="text-align: right;">残り回数：</th>
-                    <td width="90"><input id="zankai" type="number" min="0" max="240" step="1" style="width: 70px"
-                                          name="zankai">回
+                    <td width="90">
+                        <input id="zankai" type="number" min="0" max="240" step="1" style="width: 70px" name="zankai" value="{{isset($zankai) ? $zankai : ''}}">回
                     </td>
                     <td width="5">〜</td>
-                    <td width="90"><input id="zanakai2" type="number" min="0" max="240" step="1" style="width: 70px"
-                                          name="zankai2">回
+                    <td width="90">
+                        <input id="zanakai2" type="number" min="0" max="240" step="1" style="width: 70px" name="zankai2" value="{{isset($zankai2) ? $zankai2 : ''}}">回
                     </td>
                 </tr>
             </table>
+            <table>
                 <td align="center">
                     <div id="csvoutField">
-                        <input id="csvout_button" type="button" value="CSVダウンロード"
-                               onclick="location.href='csv'">
+                        <input id="csvout_button" type="button" value="CSVダウンロード" onclick="location.href='csv'">
                     </div>
                 </td>
                 <td align="center">
                     <div id="searchButtonField" align="center">
-                        <input id="search_button" type="button" value="検索" onclick="submitAfterValidation()">
+                        <input id="search_button" name="searchButton" type="button" value="検索" onclick="submitAfterValidation()">
+                    </div>
+                </td>
+                <td align="center">
+                    <div id="clearButtonField" align="center">
+                        <input id="clear_button" name="searchClearButton" type="submit" value="検索条件をクリア">
                     </div>
                 </td>
             </table>
@@ -370,13 +374,13 @@
             <tr>
                 <td>
                     <form action="/logout" method="get">
-                        <input class="menu_buttons" type="submit" value="ログアウト">
+                        <input class="menu_buttons" name="logoutButton" type="submit" value="ログアウト">
                     </form>
                 </td>
                 <td>
                     <form action="/login/redirectMenu" method="post">
                         {{ csrf_field() }}
-                        <input class="menu_buttons" type="submit" value="メニューに戻る">
+                        <input class="menu_buttons" name="menuButton" type="submit" value="メニューに戻る">
                     </form>
                 </td>
             </tr>

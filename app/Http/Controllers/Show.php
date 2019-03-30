@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-//use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\User;
 
@@ -11,74 +10,71 @@ class Show extends Controller
 {
     /**
      * 検索条件に該当するデータを取得する
+     * @param $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
      */
-    public function index(){
+    public function index(Request $request){
 
-        // セッションにユーザーデータが無ければLogin画面を表示
+        // セッションにユーザー情報が無ければLogin画面を表示
         if(!session()->has('user')){
             return redirect('login');
         }
-        // セッションを取得
-        $session_data = session()->get('user');
 
-        // ビューからパラメタを受け取る。
-        $data = Request::all();
+        // セッションからユーザー情報を取得
+        $user = session()->get('user');
 
-        // emailからUserを取得する。
-        $user = User::where('email', $session_data['email'])->first();
+        // リクエストを受け取る。
+        $data = $request->all();
+
+        // 検索条件クリアボタンが謳歌された時
+        if(isset($data['searchClearButton'])){
+            $data['searchID'] = null;
+            $data['searchID2'] = null;
+            $data['year'] = null;
+            $data['month'] = null;
+            $data['year2'] = null;
+            $data['month2'] = null;
+            $data['zankai'] = null;
+            $data['zankai2'] = null;
+        }
 
         // Queryの基本形を作成
         $query = $user->meisais();
 
-        $maxID = $user->meisais()->max('meisai_id');
-        $minID = $user->meisais()->min('meisai_id');
-        $minDate = date('1900-01-01 00:00:00');
-        $maxDate = date('2100-01-31 00:00:00');
-        $minZankai = 0;
-        $maxZankai = 240;
-
         // 明細IDによる検索条件を追加
         if(isset($data['searchID'])){
-            $minID = (int)$data['searchID'];
-            $maxID = (int)$data['searchID'];
+            $query = $query->moreThanID($data['searchID']);
+            $query = $query->lessThanID($data['searchID']);
         }
 
         // 明細IDによる検索条件を追加
         if(isset($data['searchID2'])){
-            $maxID = (int)$data['searchID2'];
+            $query = $query->lessThanID($data['searchID2']);
         }
 
         // 引落年月による検索条件を追加
         if (isset($data['year'])){
-            $minDate = date('Y-m-d H:i:s', strtotime($data['year'] . "-" . $data['month'] . "-" . "1" . '+0 month'));
-            $maxDate = date('Y-m-d H:i:s', strtotime($data['year'] . "-" . $data['month'] . "-" . "31" . '+0 month'));
+            $query = $query->moreThanHikibi(date('Y-m-d H:i:s', strtotime($data['year'] . "-" . $data['month'] . "-" . "1" . '+0 month')));
+            $query = $query->lessThanHikibi(date('Y-m-d H:i:s', strtotime($data['year'] . "-" . $data['month'] . "-" . "31" . '+0 month')));
         }
 
         // 引落年月による検索条件を追加
         if (isset($data['year2'])){
-            $maxDate = date('Y-m-d H:i:s', strtotime($data['year2'] . "-" . $data['year2'] . "-" . "31" . '+0 month'));
+            $query = $query->lessThanHikibi(date('Y-m-d H:i:s', strtotime($data['year2'] . "-" . $data['month2'] . "-" . "31" . '+0 month')));
         }
 
         // 残り回数による検索条件を追加
         if (isset($data['zankai'])){
-            $minZankai = $data['zankai'];
-            $maxZankai = $data['zankai'];
+            $query = $query->moreThanZankai($data['zankai']);
+            $query = $query->lessThanZankai($data['zankai']);
         }
 
         // 残り回数による検索条件を追加
         if (isset($data['zankai2'])){
-            $maxZankai = $data['zankai2'];
+            $query = $query->moreThanZankai($data['zankai2']);
         }
 
-        $data['meisais'] = $meisais = $query
-            ->moreThanID($minID)
-            ->lessThanID($maxID)
-            ->moreThanHikibi($minDate)
-            ->lessThanHikibi($maxDate)
-            ->moreThanZankai($minZankai)
-            ->LessThanZankai($maxZankai)
-            ->paginate(15);
+        $data['meisais'] = $meisais = $query->paginate(15);
 
         $data['first_item_num'] = $meisais->firstItem();
         $data['last_item_num'] = $meisais->lastItem();
@@ -94,11 +90,15 @@ class Show extends Controller
      * @return void
      */
     public function ajaxDelete(Request $request){
-        // emailからUserを取得する。
-        $user = User::where('email', $request->email)->first();
+
+        // リクエストの取得
+        $data = $request->all();
+
+        // セッションからユーザー情報を取得
+        $user = session()->get('user');
 
         // Userの指定された明細IDのレコードを削除
-        $user->meisais()->where('meisai_id', $request->searchID)->delete();
+        $user->meisais()->where('meisai_id', $data['searchID'])->delete();
     }
 
     /**
@@ -108,6 +108,10 @@ class Show extends Controller
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
      */
     public function csv(Request $request){
+
+        // リクエストの取得
+        $data = $request->all();
+
         $fileName = '明細' . '.csv';
 
         $csvFileName = "/Users/junya_sato/Downloads/" . $fileName;
@@ -120,18 +124,10 @@ class Show extends Controller
 
         fputcsv($res, $csvHeader);
 
-        $user = User::where('email', $request->email)->first();
+        // セッションからユーザー情報を取得
+        $user = session()->get('user');
 
-        // 明細のIDが指定されているとき
-        if (isset($request->searchID)) {
-            $maxID = $request->searchID;
-            $minID = $request->searchID;
-        } else {
-            $maxID = $user->meisais()->max('meisai_id');
-            $minID = $user->meisais()->min('meisai_id');
-        }
-
-        $meisais = $user->meisais()->moreThanID($minID)->lessThanID($maxID)->get();
+        $meisais = $user->meisais()->get();
 
         foreach ($meisais as $meisai) {
             fputcsv($res, [str_pad($meisai->meisai_id,4,0,STR_PAD_LEFT), $meisai->zankai . '回' , $meisai->zangaku, date('Y年n月j日', strtotime($meisai->hikibi . '+0 day')), $meisai->hensaigaku, $meisai->hensaimoto, $meisai->suerisoku, $meisai->risoku, $meisai->hasu, $meisai->atozangaku,]);
@@ -144,23 +140,27 @@ class Show extends Controller
 
     public function viewPreSet(Request $request){
 
-        $user = User::where('email', $request->email)->first();
+        // リクエストの取得
+        $data = $request->all();
 
-        $meisais = $user->meisais()->orderBy('meisai_id', 'asc')->get();
+        // セッションからユーザー情報を取得
+        $user = session()->get('user');
+
+        // 明細を取得
+        $data['meisais'] = $meisais = $user->meisais()->orderBy('meisai_id', 'asc')->get();
 
         foreach ($meisais as $meisai){
             $years[date('Y', strtotime($meisai->hikibi . '+0 day'))] = date('Y', strtotime($meisai->hikibi . '+0 day'));
         }
 
-        return view('prepayset', [
-            'name' => $request->name,
-            'email' => $request->email,
-            'years' => $years,
-            'msg' => '奨学金の残額は ' . $meisais[0]->zangaku . ' です',
-        ]);
+        $data['msg'] = '奨学金の残額は '.$data['meisais'][0]->zangaku.'です。';
+
+        return view('prepayset', $data);
     }
 
-    public function redirectMenu(){
-        return redirect('/login');
+    public function redirectMenu(Request $request){
+        $data = $request->all();
+        var_dump($data['menuButton']);
+//        return redirect('/login');
     }
 }

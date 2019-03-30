@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\User;
 
 class Index extends Controller
@@ -33,7 +32,7 @@ class Index extends Controller
             return redirect('login');
         }
 
-        // リクエストのセッション情報からユーザーを取得する。
+        // セッション情報からユーザーを取得する。
         $session_data = session()->get('user');
 
         // emailからUserを取得する。

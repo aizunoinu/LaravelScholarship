@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\User;
 use App\Log;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Request;
 
 class Login extends Controller
 {
@@ -12,7 +12,7 @@ class Login extends Controller
      * ビューの表示
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
 
         // セッションが存在すれば、indexビューを表示
@@ -20,8 +20,8 @@ class Login extends Controller
             return view('index');
         }
 
-        // ビューのリクエストを取得する。
-        $data = Input::all();
+        // リクエストを取得する。
+        $data = $request->all();
 
         // リクエスト情報なし
         if (empty($data)){
@@ -49,7 +49,7 @@ class Login extends Controller
                 // ログの無効化
                 $user->logs()->update(['status' => 0, 'updated_at' => date("Y/m/d H:i:s")]);
 
-                // リクエストにセッションを保存する。
+                // セッションを保存する。
                 session()->put('user', $user);
 
                 // index画面を表示する
@@ -99,7 +99,7 @@ class Login extends Controller
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
     public function logout(){
-        // リクエストのセッション情報を破棄
+        // セッション情報を破棄
         session()->forget('user');
 
         // Login画面へリダイレクト

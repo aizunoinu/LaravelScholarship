@@ -29,7 +29,7 @@ Route::get('login/show', 'Index@viewShow');
 Route::post('login/show', 'Index@viewShow');
 
 // Settingビューのルーティング
-Route::post('login/create', 'Setting@create');
+Route::post('login/create', 'Setting');
 
 // Showビューのルーティング
 Route::get('login/ajax_del', 'Show@ajaxDelete');
