@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response;
 use App\User;
 
 class Show extends Controller
@@ -112,9 +112,9 @@ class Show extends Controller
         // リクエストの取得
         $data = $request->all();
 
-        $fileName = '明細' . '.csv';
+        $fileName = sprintf('Scholarship_%s.csv', date('Y_m_d_h_i_s'));
 
-        $csvFileName = "/Users/junya_sato/Downloads/" . $fileName;
+        $csvFileName = "../uploads/" . $fileName;
 
         $res = fopen($csvFileName, 'w');
 
@@ -159,8 +159,7 @@ class Show extends Controller
     }
 
     public function redirectMenu(Request $request){
-        $data = $request->all();
-        var_dump($data['menuButton']);
-//        return redirect('/login');
+//        $data = $request->all();
+        return redirect('/login');
     }
 }

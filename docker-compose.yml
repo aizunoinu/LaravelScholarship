@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  web:
+    container_name: LaravelScholarship-web
+    build: docker/web
+    ports:
+      - "8040:80"
+    environment:
+      - "TZ=Japan"
+    volumes:
+      - ./html:/var/www/html
+    links:
+      - mysql
+
+  mysql:
+    container_name: LaravelScholarship-mysql
+    build: docker/database
+    ports:
+      - "8043:5432"
+    environment:
+      - MYSQL_DB=LaravelScholarship_db
+      - MYSQL_PASSWORD=Zaq1Zaq1
+      - MYSQL_USER=LaravelScholarship_db
+      - MYSQLDATA=/var/lib/mysqlql/data
+    volumes:
+      - ./database:/db
+    expose:
+      - "5432"
+
+  util:
+    container_name: LaravelScholarship-util
+    build: docker/util
+    ports:
+      - "8041:80"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=5432
+    links:
+      - mysql
+
+  phpunitdashboard:
+    container_name: LaravelScholarship-phpunitdashboard
+    build: docker/phpunitdashboard
+    ports:
+      - "8042:80"
+    volumes:
+      - ./tests/build:/usr/local/apache2/htdocs

@@ -273,8 +273,8 @@
                     </td>
                     <td width="5">〜</td>
                     <td width="160">
-                        <input id="year2" name="year2" type="number" min="1" style="width: 60px" value="{{isset($year2) ? $year2 : ''}}">年
-                        <input id="month2" name="month2" type="number" min="1" style="width: 50px" value="{{isset($month2) ? $month2 : ''}}">月
+                        <input id="year2" name="year2" type="number" min="1" style="width: 60px" value="{{isset($year2) ? $year2 : ''}}年">年
+                        <input id="month2" name="month2" type="number" min="1" style="width: 50px" value="{{isset($month2) ? $month2 : ''}}月">月
                     </td>
                     <th style="text-align: right;">残り回数：</th>
                     <td width="90">
